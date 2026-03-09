@@ -1,0 +1,19 @@
+# API keys
+.env
+
+# OS files
+.DS_Store
+
+# Pytest cache
+.pytest_cache/
+
+# Python-generated files
+__pycache__/
+*.egg-info
+*.py[oc]
+build/
+dist/
+wheels/
+
+# Virtual environments
+.venv
