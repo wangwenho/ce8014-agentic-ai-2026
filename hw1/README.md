@@ -30,7 +30,7 @@ This command installs all packages required by the project.
 echo "OPENAI_API_KEY=your_openai_api_key_here" > .env
 ```
 
-### 3. Run the application
+### 4. Run the application
 
 ```bash
 uv run python main.py
