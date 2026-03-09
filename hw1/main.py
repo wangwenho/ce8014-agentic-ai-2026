@@ -1,5 +1,4 @@
-from agent import FinancialAgent
-from config import get_client
+from agent import FinancialAgent, get_client
 
 if __name__ == "__main__":
     client = get_client()

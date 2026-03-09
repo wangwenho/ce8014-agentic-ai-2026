@@ -1,4 +1,4 @@
-# HW1
+# Homework 1
 
 The sample implementation is a simple Financial Assistant.
 
@@ -23,6 +23,12 @@ uv sync
 ```
 
 This command installs all packages required by the project.
+
+### 3. Create a `.env` file
+
+```bash
+echo "OPENAI_API_KEY=your_openai_api_key_here" > .env
+```
 
 ### 3. Run the application
 

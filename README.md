@@ -1,5 +1,5 @@
 # CE8014 Agentic AI: Foundations and Development
 
-## HW1
+## Homework 1
 
-- Detailed instructions for HW1 can be found in its [README](./hw1/README.md).
+For information and guidelines on Homework 1, please see the [README in the hw1 folder](./hw1/README.md).
