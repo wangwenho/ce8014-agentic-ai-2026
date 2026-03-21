@@ -45,7 +45,7 @@ uv run python main.py --demo --verbose
 You should see an interactive prompt similar to the following:
 
 <details>
-<summary>click to expand </summary>
+<summary> click to expand </summary>
 
 ```plain
 ────────────────────── Task 1 ──────────────────────
@@ -538,13 +538,11 @@ To run the tests for the project, use the following command:
 uv run pytest tests
 ```
 
-## 🛠 Implementation Details
-
-### 1. Implementation Logic
+## 🧠 Implementation Logic
 
 This section is arranged to mirror the grading rubric: prompt design first, loop mechanics second, and benchmark traces last. That order makes it easier to verify whether the implementation matches the evidence shown in the console output.
 
-#### System Prompt Strategy
+### System Prompt Strategy
 
 The system prompt is designed to keep the model's output short, parseable, and consistent with the ReAct loop.
 
@@ -554,7 +552,7 @@ The system prompt is designed to keep the model's output short, parseable, and c
 - The one-shot example teaches the exact output shape the agent should follow.
 
 <details>
-<summary>click to expand </summary>
+<summary>📋 click to expand </summary>
 
 ```plain
 You are a single general-purpose ReAct agent.
@@ -579,26 +577,36 @@ Action Input: Morphic AI search CEO
 
 </details>
 
-#### The Loop Mechanism
+### The Loop Mechanism
 
 The agent runs a bounded loop and reuses the growing transcript as context.
 
-1. Send the user query plus prior `Thought/Action/Observation` history to the LLM.
-2. Parse the model's next `Action` and `Action Input`.
-3. Execute the search tool and capture the returned observation.
-4. Append that observation to the message history so the next turn can reflect on it.
-5. Stop when the model returns `Final Answer` or when the maximum iteration limit is reached.
+```mermaid
+flowchart LR
+    A[Start] --> B[Build prompt with user query + history]
+    B --> C[LLM generates Thought/Action/Action Input]
+    C --> D{Action is Search?}
+    D -->|yes| E[Call search tool with Action Input]
+    E --> F[Receive Observation]
+    F --> G[Append Observation to history]
+    G --> H{Final Answer produced?}
+    H -->|yes| I[Return Final Answer]
+    H -->|no| B
+    D -->|no| J[Handle unsupported action or prompt retry]
+    J --> G
+    I --> K[End]
+```
 
 This structure is what makes the agent resilient: if a search fails or is too narrow, the next prompt still contains the failure trace, so the model can adjust its query instead of repeating the same step.
 
-### 2. Benchmark Traces
+## 📊 Benchmark Traces
 
-#### Task 1: Population Fraction Calculation
+### Task 1: Population Fraction Calculation
 
 This trace shows task decomposition. The agent first retrieves Japan's and Taiwan's 2025 populations, then uses those values to derive the final fraction. The unsupported `Calculate` action also shows why the loop must tolerate mistakes and continue with a revised search strategy.
 
 <details>
-<summary>click to expand </summary>
+<summary>📋 click to expand </summary>
 
 ```plain
 ────────────────────── Task 1 ──────────────────────
@@ -768,12 +776,12 @@ This trace shows task decomposition. The agent first retrieves Japan's and Taiwa
 
 </details>
 
-#### Task 2: Display Specification Comparison
+### Task 2: Display Specification Comparison
 
 This trace shows direct data retrieval and comparison. The important signal is that the agent retrieves the display type, size, resolution, and refresh rate for both phones, then summarizes the main difference as `60 Hz` versus `120 Hz`.
 
 <details>
-<summary>click to expand </summary>
+<summary>📋 click to expand </summary>
 
 ```plain
 ────────────────────── Task 2 ──────────────────────
@@ -946,12 +954,12 @@ This trace shows direct data retrieval and comparison. The important signal is t
 
 </details>
 
-#### Task 3: CEO Identification
+### Task 3: CEO Identification
 
 This trace shows self-correction. The first search returns conflicting names, so the agent reflects on the mismatch and performs a second search to verify the current CEO before answering.
 
 <details>
-<summary>click to expand </summary>
+<summary>📋 click to expand </summary>
 
 ```plain
 ────────────────────── Task 3 ──────────────────────
