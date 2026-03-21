@@ -2,7 +2,7 @@
 
 The sample implementation is a simple Financial Assistant.
 
-## Quick Start
+## 🚀 Quick Start
 
 ### Prerequisites
 
@@ -58,7 +58,7 @@ You: exit
 Goodbye!
 ```
 
-## Testing
+## 🧪 Testing
 
 Run the test suite with:
 
