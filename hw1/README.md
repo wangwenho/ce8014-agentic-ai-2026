@@ -12,7 +12,7 @@ The sample implementation is a simple Financial Assistant.
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/wangwenho/ce8007-computer-graphics-2025.git
+git clone https://github.com/wangwenho/ce8014-agentic-ai-2026.git
 cd hw1
 ```
 
