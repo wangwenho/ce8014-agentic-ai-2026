@@ -50,6 +50,7 @@ def build_system_prompt() -> str:
         Thought: Search company and CEO.
         Action: Search
         Action Input: Morphic AI search CEO
+        ===STEP_END===
         """
     ).strip()
 
