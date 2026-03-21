@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import argparse
 
 from agent.agent import ReActAgent, build_system_prompt
@@ -18,19 +16,33 @@ DEMO_QUESTIONS = [
 
 def build_agent() -> ReActAgent:
     return ReActAgent(
-        system_prompt=build_system_prompt(), model="gpt-4o-mini", max_steps=5
+        system_prompt=build_system_prompt(),
+        model="gpt-4o-mini",
+        max_steps=5,
     )
 
 
-def run_demo(agent: ReActAgent) -> None:
+def run_demo(
+    agent: ReActAgent,
+    verbose: bool = False,
+) -> None:
+    """
+    Run the demo tasks with the given agent.
+    """
     for index, question in enumerate(DEMO_QUESTIONS, start=1):
         console.rule(f"Task {index}", style="bold blue")
         console.print(Panel(question, title="User", style="bold green"))
-        _ = agent.execute(question)
-        # console.print(Panel(answer, title="Final Answer", style="magenta"))
+        answer = agent.execute(question, verbose=verbose)
+        console.print(Panel(answer, title="Final Answer", style="bold magenta"))
 
 
-def run_interactive(agent: ReActAgent) -> None:
+def run_interactive(
+    agent: ReActAgent,
+    verbose: bool = False,
+) -> None:
+    """
+    Run the interactive mode with the given agent.
+    """
     console.print("ReAct Agent ready. Type 'exit' to quit.", style="bold green")
     while True:
         question = input("You: ").strip()
@@ -39,23 +51,31 @@ def run_interactive(agent: ReActAgent) -> None:
         if question.lower() in {"exit", "quit"}:
             console.print("Goodbye!", style="bold yellow")
             return
-        _ = agent.execute(question)
-        # console.print(Panel(answer, title="Final Answer", style="magenta"))
+        answer = agent.execute(question, verbose=verbose)
+        console.print(Panel(answer, title="Final Answer", style="bold magenta"))
 
 
 def main() -> None:
     load_dotenv()
+
     parser = argparse.ArgumentParser(description="Run the HW2 ReAct agent.")
     parser.add_argument(
-        "--demo", action="store_true", help="Run the three assignment benchmark tasks."
+        "--demo",
+        action="store_true",
+        help="Run the three assignment benchmark tasks.",
+    )
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Print detailed agent reasoning steps and tool calls.",
     )
     args = parser.parse_args()
 
     agent = build_agent()
     if args.demo:
-        run_demo(agent)
+        run_demo(agent, verbose=args.verbose)
     else:
-        run_interactive(agent)
+        run_interactive(agent, verbose=args.verbose)
 
 
 if __name__ == "__main__":
