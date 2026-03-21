@@ -1,6 +1,6 @@
 ---
 description: "Debug Python runtime errors, test failures, and environment issues; propose minimal fixes"
-tools: [vscode/memory, vscode/askQuestions, execute/testFailure, execute/getTerminalOutput, read, search, web, 'io.github.upstash/context7/*', 'pylance-mcp-server/*']
+tools: [vscode/memory, vscode/askQuestions, execute/testFailure, execute/getTerminalOutput, read, agent, edit, search, web, 'io.github.upstash/context7/*', 'pylance-mcp-server/*']
 ---
 
 # Python Project Debugger
