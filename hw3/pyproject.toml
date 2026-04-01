@@ -3,5 +3,22 @@ name = "hw3"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.14"
-dependencies = []
+requires-python = ">=3.11"
+dependencies = [
+    "chromadb>=0.5.23",
+    "langchain~=0.3.7",
+    "langchain-chroma~=0.1.4",
+    "langchain-community~=0.3.7",
+    "langchain-core~=0.3.17",
+    "langchain-google-genai~=2.0.4",
+    "langchain-huggingface~=0.1.0",
+    "langchain-openai~=0.2.6",
+    "langgraph~=0.2.45",
+    "pymupdf>=1.27.2.2",
+    "pypdf>=6.9.2",
+    "python-dotenv>=1.2.2",
+    "sentence-transformers>=5.3.0",
+    "tenacity>=9.1.4",
+    "termcolor>=3.3.0",
+    "transformers~=4.46.1",
+]
