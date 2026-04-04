@@ -1,0 +1,107 @@
+# Assignment 3: Autonomous Multi-Doc Financial Analyst
+
+**Due Date:** 3/26 - 4/9  
+
+---
+
+## Objective
+
+- The primary objective of this assignment is to transition from building linear chains to **LangGraph**. Students will learn to construct a state-aware RAG system capable of **Self-Correction** and **Intelligent Routing**.  
+- Try to use different embedding models and know the difference.
+
+---
+
+## Task Description
+
+### Task A: LangChain
+
+- **Goal:** construct a text prompt that forces the LLM to follow the ReAct (Reasoning + Acting) loop until it finds the answer.  
+- **Requirement:** You need to assign a string to the template variable. Your prompt must strictly satisfy the following three categories of requirements:
+
+1. **Technical Requirements (Mandatory Variables):** The LangChain `create_react_agent` function requires specific placeholders to function. If any of these are missing, your code will crash.
+    - `{tools}`: The system will inject the list of available tool descriptions here.
+    - `{tool_names}`: The system will inject the names of valid tools (e.g., [search_apple_financials]).
+    - `{input}`: The user's original question.
+    - `{agent_scratchpad}`: Crucial. This is where the agent's "memory" (previous thoughts, actions, and observations) is stored.
+2. **Structural Requirements (The ReAct Loop):** You must explicitly instruct the LLM to use the following format:
+    - Question: The input question.
+    - Thought: The agent should reason about what to do next.
+    - Action: The tool to use (must be one of {tool_names}).
+    - Action Input: The specific query to send to the tool.
+    - Observation: The result returned by the tool (this is provided by the system, but you must list it as a step).
+    - Final Answer: The conclusion.
+3. **Behavioral Constraints (Quality Control):** To pass the benchmark tests (especially the comparison and detail tasks), your prompt must enforce:
+    - **English Only:** The Final Answer must be in English, even if the user asks in Chinese.
+    - **Year Precision:** Explicitly warn the agent to distinguish between 2024, 2023, and 2022 columns in financial tables.
+    - **Honesty:** If the exact 2024 figure is not found, instructed the agent to say "I don't know" rather than guessing.
+
+### Task B: LangGraph - Intelligent Router
+
+- **Goal:** Replace the hardcoded dummy logic. You must design a prompt that asks the LLM to classify the user's question into one of four categories: `["apple", "tesla", "both", "none"]`.  
+- **Requirement:** The agent should dynamically choose which vector store retriever to invoke based on the entity mentioned in the query.
+
+### Task C: LangGraph - Relevance Grader
+
+- **Goal:** Implement a "Binary Judge." The LLM must evaluate the retrieved documents against the user's question.  
+- **Requirement:**
+  - If the document is relevant -> Output **yes** (Proceed to Generate).  
+  - If the document is irrelevant (noise) -> Output **no** (Trigger Rewrite).
+
+### Task D: LangGraph - Query Rewriter
+
+- **Goal:** If the Grader returns no, the agent must not give up. It should rewrite the original question to be more specific or use better financial terminology.  
+- **Requirement:** Transform vague queries (e.g., "how much did they spend on new tech") into precise terms (e.g., "Research and Development expenses").
+
+### Task E: LangGraph - Final Generator
+
+- **Goal:** Synthesize the final answer using the retrieved context.  
+- **Requirement:**
+  - Strictly cite sources (e.g., [Source: Apple 10-K]).  
+  - If the information is missing (even after retries), honestly state "I don't know" instead of hallucinating.
+
+---
+
+## Required Files
+
+- `report.pdf`  
+- `*.py`  
+- `README.md`
+
+---
+
+## Submission Details
+
+- **Deadline:** 2026/4/9  
+- **Late Policy:** Standard course policy applies.
+
+---
+
+## Benchmark Tasks (For Report)
+
+- Does it detail the differing results caused by using different embedding models? (compare at least 2) (20 points)  
+- Detailed comparison between LangGraph and LangChain. (30 points)  
+- We used `chunk_size=2000`. If you add it or reduce it, how does it affect the ability to answer questions about large tables (like the Balance Sheet)? Explain the trade-off between "Context Precision" (small chunks) and "Context Completeness" (large chunks). (20 points)
+
+---
+
+## Grade
+
+| Item | Weight |
+| :--- | :--- |
+| **Report.pdf** | 70% |
+| **Query Accuracy (Private test dataset)** | 30% |
+
+---
+
+## Resources
+
+- **Gemini API Key:** [https://aistudio.google.com/](https://aistudio.google.com/)  
+- **LangGraph Documentation:** [https://langchain-ai.github.io/langgraph/](https://langchain-ai.github.io/langgraph/)  
+- **Apple:** [https://www.apple.com/newsroom/2024/10/apple-reports-fourth-quarter-results/](https://www.apple.com/newsroom/2024/10/apple-reports-fourth-quarter-results/)  
+- **Tesla:** [https://ir.tesla.com/_flysystem/s3/sec/000162828025003063/tsla-20241231-gen.pdf](https://ir.tesla.com/_flysystem/s3/sec/000162828025003063/tsla-20241231-gen.pdf)  
+
+---
+
+## Sample Code
+
+[https://github.com/jason79461385/Assignment-3](https://github.com/jason79461385/Assignment-3)

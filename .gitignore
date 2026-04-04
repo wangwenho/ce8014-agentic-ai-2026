@@ -7,16 +7,24 @@
 # OS files
 .DS_Store
 
-# Pytest cache
-.pytest_cache/
-
-# Python-generated files
+# Python cache and artifacts
 __pycache__/
-*.egg-info
+.pytest_cache/
 *.py[oc]
+*.egg-info
+
+# Build outputs
 build/
 dist/
 wheels/
 
-# Virtual environments
+# Virtual environment
 .venv
+
+# Logs and runtime data
+logs/
+cache/
+*.log
+*.csv
+*.txt
+chroma_db*/
