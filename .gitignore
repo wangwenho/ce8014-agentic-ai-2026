@@ -27,4 +27,4 @@ cache/
 *.log
 *.csv
 *.txt
-chroma_db/
+chroma_db*/
