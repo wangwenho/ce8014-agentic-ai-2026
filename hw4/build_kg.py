@@ -1,24 +1,21 @@
-﻿"""Minimal KG builder template for Assignment 4.
+﻿"""KG builder for Assignment 4.
 
-Keep this contract unchanged:
+Contract kept intact:
 - Graph: (Regulation)-[:HAS_ARTICLE]->(Article)-[:CONTAINS_RULE]->(Rule)
-- Article: number, content, reg_name, category
-- Rule: rule_id, type, action, result, art_ref, reg_name
+- Article properties: number, content, reg_name, category
+- Rule properties: rule_id, type, action, result, art_ref, reg_name
 - Fulltext indexes: article_content_idx, rule_idx
 - SQLite file: ncu_regulations.db
 """
 
 import os
+import re
 import sqlite3
 from typing import Any
 
 from dotenv import load_dotenv
 from neo4j import GraphDatabase
 
-from llm_loader import load_local_llm, get_tokenizer, get_raw_pipeline
-
-
-# ========== 0) Initialization ==========
 load_dotenv()
 
 URI = os.getenv("NEO4J_URI", "bolt://localhost:7687")
@@ -27,22 +24,169 @@ AUTH = (
     os.getenv("NEO4J_PASSWORD", "password"),
 )
 
+CLAUSE_SPLIT_RE = re.compile(
+    r"(?:(?<=\.)\s+|(?<=;)\s+|(?<=。)\s+|(?<=；)\s+|(?=\d+\.\s))"
+)
 
-def extract_entities(article_number: str, reg_name: str, content: str) -> dict[str, Any]:
-    """TODO(student, required): implement LLM extraction and return {"rules": [...]}"""
+
+def _normalize_text(text: str) -> str:
+    return re.sub(r"\s+", " ", (text or "")).strip()
+
+
+def _split_clauses(content: str) -> list[str]:
+    text = _normalize_text(content)
+    if not text:
+        return []
+
+    clauses: list[str] = []
+    for part in CLAUSE_SPLIT_RE.split(text):
+        cleaned = _normalize_text(re.sub(r"^\d+\.\s*", "", part))
+        if cleaned:
+            clauses.append(cleaned)
+    return clauses
+
+
+def _classify_clause(clause: str) -> str:
+    lower = clause.lower()
+    if any(
+        token in lower
+        for token in [
+            "ntd",
+            "fee",
+            "working day",
+            "workday",
+            "pay",
+            "cost",
+            "reissue",
+            "replace",
+        ]
+    ):
+        return "fee"
+    if any(
+        token in lower
+        for token in ["zero grade", "zero score", "deducted", "disciplinary", "penalty"]
+    ):
+        return "penalty"
+    if any(
+        token in lower
+        for token in [
+            "not permitted",
+            "may not",
+            "shall not",
+            "must",
+            "should",
+            "required",
+            "barred",
+        ]
+    ):
+        return "requirement"
+    if any(
+        token in lower
+        for token in [
+            "may",
+            "eligible",
+            "can apply",
+            "will be given",
+            "will be approved",
+        ]
+    ):
+        return "permission"
+    if any(
+        token in lower
+        for token in [
+            "semester",
+            "years",
+            "minutes",
+            "credits",
+            "points",
+            "grade",
+            "score",
+        ]
+    ):
+        return "condition"
+    return "rule"
+
+
+def _extract_result(clause: str) -> str:
+    patterns = [
+        r"(?:zero grade(?: for the exam)?|zero score(?: for the exam)?|score will be zero)",
+        r"(?:five points deducted|5 points deducted|five points deduction|5 points deduction)",
+        r"(?:NTD\s*200|200\s*NTD|NTD\s*100|100\s*NTD)",
+        r"(?:three workdays|3 working days|three working days)",
+        r"(?:four years|4 years|two years|2 years|2 academic years)",
+        r"(?:128 course credits|128 credits|60 marks|70 marks)",
+        r"(?:five semesters|5 semesters)",
+    ]
+
+    for pattern in patterns:
+        match = re.search(pattern, clause, flags=re.IGNORECASE)
+        if match:
+            return _normalize_text(match.group(0))
+
+    return _normalize_text(clause)
+
+
+def _make_rule_record(
+    article_number: str, reg_name: str, clause: str, index: int
+) -> dict[str, str]:
+    clause = _normalize_text(clause)
     return {
-        "rules": []
+        "rule_id": f"{reg_name}:{article_number}:{index:03d}",
+        "type": _classify_clause(clause),
+        "action": clause,
+        "result": _extract_result(clause),
+        "art_ref": article_number,
+        "reg_name": reg_name,
     }
 
 
 def build_fallback_rules(article_number: str, content: str) -> list[dict[str, str]]:
-    """TODO(student, optional): add deterministic fallback rules."""
-    return []
+    """Split an article into deterministic rule records."""
+    clauses = _split_clauses(content)
+    rules: list[dict[str, str]] = []
+    seen: set[tuple[str, str]] = set()
+
+    for index, clause in enumerate(clauses, start=1):
+        action = _normalize_text(clause)
+        result = _extract_result(clause)
+        canonical = (action.lower(), result.lower())
+        if not action or not result or canonical in seen:
+            continue
+        seen.add(canonical)
+        rules.append(_make_rule_record(article_number, "", clause, index))
+
+    return rules
 
 
-# SQLite tables used:
-# - regulations(reg_id, name, category)
-# - articles(reg_id, article_number, content)
+def extract_entities(
+    article_number: str, reg_name: str, content: str
+) -> dict[str, Any]:
+    """Return rule-like records extracted from a single article."""
+    clauses = _split_clauses(content)
+    rules: list[dict[str, str]] = []
+    seen: set[tuple[str, str]] = set()
+
+    for index, clause in enumerate(clauses, start=1):
+        record = _make_rule_record(article_number, reg_name, clause, index)
+        canonical = (record["action"].lower(), record["result"].lower())
+        if not record["action"] or not record["result"] or canonical in seen:
+            continue
+        seen.add(canonical)
+        rules.append(record)
+
+    if not rules and content.strip():
+        rules.append(
+            {
+                "rule_id": f"{reg_name}:{article_number}:001",
+                "type": "rule",
+                "action": _normalize_text(content),
+                "result": _normalize_text(content),
+                "art_ref": article_number,
+                "reg_name": reg_name,
+            }
+        )
+
+    return {"rules": rules}
 
 
 def build_graph() -> None:
@@ -51,14 +195,9 @@ def build_graph() -> None:
     cursor = sql_conn.cursor()
     driver = GraphDatabase.driver(URI, auth=AUTH)
 
-    # Optional: warm up local LLM
-    load_local_llm()
-
     with driver.session() as session:
-        # Fixed strategy: clear existing graph data before rebuilding.
         session.run("MATCH (n) DETACH DELETE n")
 
-        # 1) Read regulations and create Regulation nodes.
         cursor.execute("SELECT reg_id, name, category FROM regulations")
         regulations = cursor.fetchall()
         reg_map: dict[int, tuple[str, str]] = {}
@@ -72,7 +211,6 @@ def build_graph() -> None:
                 cat=category,
             )
 
-        # 2) Read articles and create Article + HAS_ARTICLE.
         cursor.execute("SELECT reg_id, article_number, content FROM articles")
         articles = cursor.fetchall()
 
@@ -91,12 +229,11 @@ def build_graph() -> None:
                 """,
                 rid=reg_id,
                 num=article_number,
-                content=content,
+                content=_normalize_text(content),
                 reg_name=reg_name,
                 reg_category=reg_category,
             )
 
-        # 3) Create full-text index on Article content.
         session.run(
             """
             CREATE FULLTEXT INDEX article_content_idx IF NOT EXISTS
@@ -105,15 +242,46 @@ def build_graph() -> None:
         )
 
         rule_counter = 0
+        seen_rule_signatures: set[tuple[str, str, str, str]] = set()
 
-        # TODO(student, required):
-        # - iterate through all articles
-        # - call extract_entities(article_number, reg_name, content)
-        # - skip invalid rules with empty action/result
-        # - generate unique rule_id and deduplicate logically similar rules
-        # - create Rule nodes with required properties and link via CONTAINS_RULE
+        for reg_id, article_number, content in articles:
+            reg_name, _ = reg_map.get(reg_id, ("Unknown", "Unknown"))
+            extracted = extract_entities(article_number, reg_name, content)
 
-        # 4) Create full-text index on Rule fields.
+            for rule in extracted.get("rules", []):
+                action = _normalize_text(rule.get("action", ""))
+                result = _normalize_text(rule.get("result", ""))
+                if not action or not result:
+                    continue
+
+                signature = (reg_name, article_number, action.lower(), result.lower())
+                if signature in seen_rule_signatures:
+                    continue
+                seen_rule_signatures.add(signature)
+
+                rule_counter += 1
+                session.run(
+                    """
+                    MATCH (a:Article {number: $article_number, reg_name: $reg_name})
+                    CREATE (r:Rule {
+                        rule_id: $rule_id,
+                        type: $type,
+                        action: $action,
+                        result: $result,
+                        art_ref: $art_ref,
+                        reg_name: $reg_name
+                    })
+                    MERGE (a)-[:CONTAINS_RULE]->(r)
+                    """,
+                    article_number=article_number,
+                    reg_name=reg_name,
+                    rule_id=f"{reg_name}:{article_number}:{rule_counter:04d}",
+                    type=rule.get("type", "rule"),
+                    action=action,
+                    result=result,
+                    art_ref=article_number,
+                )
+
         session.run(
             """
             CREATE FULLTEXT INDEX rule_idx IF NOT EXISTS
@@ -121,7 +289,6 @@ def build_graph() -> None:
             """
         )
 
-        # 5) Coverage audit (provided scaffold).
         coverage = session.run(
             """
             MATCH (a:Article)

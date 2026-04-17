@@ -1,5 +1,8 @@
+from query_system import main as run_query_system
+
+
 def main():
-    print("Hello from hw4!")
+    run_query_system()
 
 
 if __name__ == "__main__":
