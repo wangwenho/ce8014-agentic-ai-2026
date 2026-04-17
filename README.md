@@ -11,3 +11,7 @@ For information and guidelines on Homework 2, please see the [README in the hw2
 ## Homework 3
 
 For information and guidelines on Homework 3, please see the [README in the hw3 folder](./hw3/README.md).
+
+## Homework 4
+
+For information and guidelines on Homework 4, please see the [README in the hw4 folder](./hw4/README.md).
