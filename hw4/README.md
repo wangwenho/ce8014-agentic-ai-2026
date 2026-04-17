@@ -305,7 +305,7 @@ LIMIT 20
 
 ![Knowledge Graph](./assets/kg_2.png)
 
-### 3. Auto Test Result
+### 2. Auto Test Result
 
 run `uv run python auto_test.py` to see the evaluation summary:
 
