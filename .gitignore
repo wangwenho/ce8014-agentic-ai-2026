@@ -28,3 +28,4 @@ cache/
 *.csv
 *.txt
 chroma_db*/
+*.db

@@ -196,7 +196,7 @@ Your repository must include at least the following files:
 - Describe your KG schema design.
 - Include screenshots showing key nodes and relationships in your graph.
 
-2. `auto_test.py`
+1. `auto_test.py`
 2. `build_kg.py`
 3. `llm_loader.py`
 4. `query_system.py`
