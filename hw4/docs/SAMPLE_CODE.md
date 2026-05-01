@@ -1,12 +1,15 @@
 # 🛠️ Prerequisites
+
 Before you begin, ensure you have the following installed:
 
-* Python 3.11 (Strict requirement) 
+* Python 3.11 (Strict requirement)
 
 * Docker Desktop (Required to run the Neo4j database)
 
 * Internet access for first-time HuggingFace model download (local model will be cached)
+
 # ⚙️ Environment Setup
+
 ### 1. Database Setup (Neo4j via Docker)
 
 You must run a local Neo4j instance using Docker. Run the following command in your terminal:
@@ -17,15 +20,15 @@ Explanation of flags:
 
 * -d: Runs the container in detached mode (background).
 
-*  -p 7474:7474: Exposes the web interface port (Browser).
+* -p 7474:7474: Exposes the web interface port (Browser).
 
-*  -p 7687:7687: Exposes the Bolt protocol port (Python connection).
+* -p 7687:7687: Exposes the Bolt protocol port (Python connection).
 
-*  -e NEO4J_AUTH=...: Sets the username (neo4j) and password (password).
+* -e NEO4J_AUTH=...: Sets the username (neo4j) and password (password).
 
 Verification: After running the command, check if the database is ready:
 
-1. Open your browser and go to http://localhost:7474.
+1. Open your browser and go to <http://localhost:7474>.
 
 2. Login with user: neo4j and password: password.
 
@@ -34,6 +37,7 @@ Verification: After running the command, check if the database is ready:
 It is highly recommended to use a virtual environment to manage dependencies.
 
 **For macOS / Linux:**
+
 ```
 # Create virtual environment
 python -m venv venv
@@ -41,7 +45,9 @@ python -m venv venv
 # Activate environment
 source venv/bin/activate
 ```
+
 **For Windows:**
+
 ```
 # Create virtual environment
 python -m venv venv
@@ -63,12 +69,11 @@ venv\Scripts\activate
 * **auto_test.py:** Runs benchmark questions in test_data.json and uses an "LLM-as-a-Judge" to score your system (Pass/Fail).
 
 # 🚀 Execution Order
+
 **make sure you have already run neo4j in docker**
 **run commands in this repository root folder**
+
 1. `python setup_data.py`
 2. `python build_kg.py`
 3. (Not necessary)`python query_system.py`: Test your system manually to see if it answers correctly.
 4. `python auto_test.py`: run the benchmark test  
-
-
-
