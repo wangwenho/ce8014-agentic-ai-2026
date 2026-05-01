@@ -8,6 +8,7 @@ TA: 葛亭妤
 ## 0) Objective
 
 This assignment extends Assignment 4. Your goals are:
+
 1. Build a multi-agent QA system on top of your **A4 KG**
 2. Add security validation (reject unsafe requests)
 3. Add diagnosis and repair flow (not only direct answering)
@@ -18,16 +19,19 @@ This assignment extends Assignment 4. Your goals are:
 ## Environment Setup (Before You Start)
 
 ### Prerequisites
+
 - Python 3.11
 - Docker Desktop (for Neo4j)
-- Sufficient disk space for local model cache 
+- Sufficient disk space for local model cache
 
 ### Neo4j startup (example)
+
 ```bash
 docker run -d --name neo4j -p 7474:7474 -p 7687:7687 -e NEO4J_AUTH=neo4j/password neo4j:latest
 ```
 
 ### Python environment
+
 ```bash
 python -m venv venv
 # Windows
@@ -36,6 +40,7 @@ pip install -r requirements.txt
 ```
 
 ### Recommended run order
+
 ```bash
 python setup_data.py
 python build_kg.py
@@ -76,16 +81,19 @@ Starter pack files:
 ## 2) What You May Modify vs. What You Should Not
 
 ### You may modify
+
 - `query_system_multiagent_template.py`
 - `agents/a5_template.py`
 - Any new files you create (e.g., additional `agents/*.py`)
 - `setup_data.py`, `build_kg.py` (to align with your own A4 implementation)
 
 ### You must create
+
 - `query_system_multiagent.py`
   - Create by copying `query_system_multiagent_template.py`, then implement your logic
 
 ### You should not modify (test contract files)
+
 - `auto_test_a5.py`
 
 > Note: You may do local experiments, but final submission must remain compatible with TA's fixed test contract.
@@ -124,6 +132,7 @@ You may design modules freely, but your system capabilities must cover all 7 rol
 7. Explanation
 
 ### Recommended flow style (Hybrid)
+
 - Fixed front half: Understand → Security → Plan → Execute → Diagnose
 - Dynamic back half: branch based on diagnosis result
 - Maximum 1 repair round
@@ -133,11 +142,13 @@ You may design modules freely, but your system capabilities must cover all 7 rol
 ## 6) Output Contract (Mandatory)
 
 `query_system_multiagent.py` must expose at least one callable:
+
 - `run_multiagent_qa(question)`
 - `run_qa(question)`
 - `answer_question(question)`
 
 Return value must be a dict containing:
+
 - `answer` (str)
 - `safety_decision` (`ALLOW` / `REJECT`)
 - `diagnosis` (`SUCCESS` / `QUERY_ERROR` / `SCHEMA_MISMATCH` / `NO_DATA`)
@@ -150,6 +161,7 @@ Return value must be a dict containing:
 ## 7) Test Contract (Mandatory)
 
 `auto_test_a5.py` must be able to:
+
 1. Read `test_data_a5.json` in the specified format
 2. Evaluate all three case types (`normal` / `failure` / `unsafe`)
 3. Output fixed metrics and weighted 60-point system score
@@ -159,6 +171,7 @@ Return value must be a dict containing:
    - per-case contract coverage checks (e.g., missing `safety_decision`, `diagnosis`, `repair_attempted`, `repair_changed`, `explanation`)
 
 ### Hard policy
+
 If TA cannot run your evaluator directly, or your output contract is incompatible, the corresponding grading component receives no credit.
 
 ---
@@ -166,13 +179,16 @@ If TA cannot run your evaluator directly, or your output contract is incompatibl
 ## 8) Grading (Total 100)
 
 ### A. Report / Documentation: 40%
+
 Your report must explain:
+
 - How each agent is designed and implemented
 - Why major design decisions were made
 - What difficulties you encountered and how you addressed them
 - Key findings/insights from debugging and evaluation
 
 ### B. System Performance: 60%
+
 - Task Success Rate: 25%
 - Security & Validation: 15%
 - Error Detection Quality: 8%
@@ -188,6 +204,7 @@ Your report must explain:
 Upload your github link with following files:
 
 ### Mandatory
+
 1. `README.md`
    - Architecture diagram, agent responsibilities, pipeline, challenges, findings
 2. `query_system_multiagent.py`
@@ -196,7 +213,6 @@ Upload your github link with following files:
 5. `requirements.txt`
 6. `build_kg.py`
    - A4-compatible KG builder used for A4→A5 continuity validation
-
 
 ---
 
@@ -212,4 +228,3 @@ Upload your github link with following files:
 ## Submission Details
 
 Deadline: 2026/5/7  
-
