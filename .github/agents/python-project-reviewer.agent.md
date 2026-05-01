@@ -1,6 +1,6 @@
 ---
 description: "Review Python code for bugs, regressions, test gaps, and maintainability risks"
-tools: [vscode/memory, vscode/askQuestions, read, agent, edit, search, web, 'io.github.upstash/context7/*', 'pylance-mcp-server/*']
+tools: [vscode/memory, vscode/askQuestions, read, agent, edit, search, web, 'io.github.upstash/context7/*', 'pylance-mcp-server/*', 'microsoft/markitdown/*', vscode.mermaid-chat-features/renderMermaidDiagram, github.vscode-pull-request-github/issue_fetch, github.vscode-pull-request-github/labels_fetch, github.vscode-pull-request-github/notification_fetch, github.vscode-pull-request-github/doSearch, github.vscode-pull-request-github/activePullRequest, github.vscode-pull-request-github/pullRequestStatusChecks, github.vscode-pull-request-github/openPullRequest, github.vscode-pull-request-github/create_pull_request, github.vscode-pull-request-github/resolveReviewThread, marp-team.marp-vscode/exportMarp, ms-python.python/getPythonEnvironmentInfo, ms-python.python/getPythonExecutableCommand, ms-python.python/installPythonPackage, ms-python.python/configurePythonEnvironment, ms-toolsai.jupyter/configureNotebook, ms-toolsai.jupyter/listNotebookPackages, ms-toolsai.jupyter/installNotebookPackages, todo, cweijan.vscode-database-client2/dbclient-getDatabases, cweijan.vscode-database-client2/dbclient-getTables, cweijan.vscode-database-client2/dbclient-executeQuery]
 ---
 
 # Python Project Reviewer
@@ -34,6 +34,12 @@ Do not use this agent for:
 - Focus on findings, not implementation advice.
 - Be honest when there are no major issues.
 - Keep the review concise and specific.
+
+## Environment & Tooling
+
+- This project uses `uv` for task execution and dependency management.
+- Prefer `uv run` when referencing or suggesting command execution.
+- Prefer `uv add` / `uv remove` instead of `pip` for package management.
 
 ## Review Priorities
 
