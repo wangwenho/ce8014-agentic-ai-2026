@@ -20,12 +20,3 @@ wheels/
 
 # Virtual environment
 .venv
-
-# Logs and runtime data
-logs/
-cache/
-*.log
-*.csv
-*.txt
-chroma_db*/
-*.db
